@@ -154,16 +154,25 @@ class Scorecam(ModelVisualization):
             np.reshape(seed_input, (-1, ) + seed_input.shape[2:])
             for seed_input in masked_seed_inputs
         ]
-
+        
+        # Predicting seed-inputs
+        preds_baseline = self.model.predict(seed_inputs, batch_size=batch_size)
+        preds_baseline = listify(preds_baseline)
+        
         # Predicting masked seed-inputs
-        preds = self.model.predict(masked_seed_inputs, batch_size=batch_size)
+        preds_masked = self.model.predict(masked_seed_inputs, batch_size=batch_size)
+        preds_masked = listify(preds_masked)
         # (channels * samples, logits) -> (channels, samples, logits)
-        preds = (np.reshape(prediction, (channels, nsamples, prediction.shape[-1]))
-                 for prediction in listify(preds))
-
+        preds_masked = (np.reshape(prediction, (channels, nsamples, prediction.shape[-1]))
+                 for prediction in preds_masked)
+        
+        increased_confidence = ( pred_masked - pred_base[None,...]
+                                for pred_masked, pred_base in zip(preds_masked, preds_baseline))
         # Calculating weights
-        weights = ([score(K.softmax(p)) for p in prediction]
-                   for score, prediction in zip(scores, preds))
+        weights = ([score(i) for i in incresed] 
+                   for score, incresed in zip(scores, increased_confidence))
+        # (channels, samples, 1)
+        weights = (K.softmax(w,axis=0) for w in weights)
         weights = ([self._validate_weight(s, nsamples) for s in w] for w in weights)
         weights = (np.array(w, dtype=np.float32) for w in weights)
         weights = (np.reshape(w, (channels, nsamples, -1)) for w in weights)
