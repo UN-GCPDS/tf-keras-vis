@@ -20,6 +20,7 @@ class Layercam(Gradcam):
                  penultimate_layer=None,
                  seek_penultimate_conv_layer=True,
                  gradient_modifier=lambda grads: K.relu(grads),
+                 weights_modifier=lambda grads: grads,
                  activation_modifier=lambda cam: K.relu(cam),
                  training=False,
                  expand_cam=True,
@@ -63,6 +64,8 @@ class Layercam(Gradcam):
                 to False.
             gradient_modifier: A function to modify gradients. Defaults to
                 `lambda grads: tf.keras.backend.relu(grads)`.
+            weights_modifier: A function to modigy weights. Defaults to 
+                `lambda grads: grads`
             expand_cam: True to resize CAM to the same as input image size. **Note!** When False,
                 even if the model has multiple inputs, return only a CAM. Defaults to True.
             normalize_cam: When True, CAM will be normalized. Defaults to True.

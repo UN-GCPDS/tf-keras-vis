@@ -24,6 +24,9 @@ class Gradcam(ModelVisualization):
                  penultimate_layer=None,
                  seek_penultimate_conv_layer=True,
                  gradient_modifier=None,
+                 weights_modifier=lambda grads: K.mean(grads, 
+                                                axis=tuple(range(grads.ndim)[1:-1]), 
+                                                keepdims=True),
                  activation_modifier=lambda cam: K.relu(cam),
                  training=False,
                  expand_cam=True,
@@ -64,6 +67,8 @@ class Gradcam(ModelVisualization):
             gradient_modifier: A function to modify gradients. Defaults to None.
             activation_modifier: A function to modify the Class Activation Map (CAM). Defaults to
                 `lambda cam: K.relu(cam)`.
+            weights_modifier: A function to modigy weights. Defaults to 
+                `lambda grads: K.mean(grads, axis=tuple(range(grads.ndim)[1:-1]), keepdims=True)`
             training: A bool that indicates whether the model's training-mode on or off. Defaults
                 to False.
             expand_cam: True to resize CAM to the same as input image size. **Note!** When False,
@@ -104,7 +109,7 @@ class Gradcam(ModelVisualization):
 
         if gradient_modifier is not None:
             grads = gradient_modifier(grads)
-        weights = K.mean(grads, axis=tuple(range(grads.ndim)[1:-1]), keepdims=True)
+        weights = weights_modifier(grads)
         cam = np.sum(np.multiply(penultimate_output, weights), axis=-1)
         if activation_modifier is not None:
             cam = activation_modifier(cam)
