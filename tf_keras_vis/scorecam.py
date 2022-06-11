@@ -163,7 +163,7 @@ class Scorecam(ModelVisualization):
         preds_masked = self.model.predict(masked_seed_inputs, batch_size=batch_size)
         preds_masked = listify(preds_masked)
         # (channels * samples, logits) -> (channels, samples, logits)
-        preds_masked = (np.reshape(prediction, (channels, nsamples, prediction.shape[-1]))
+        preds_masked = (np.reshape(prediction, (channels, nsamples, *prediction.shape[1:]))
                  for prediction in preds_masked)
         
         increased_confidence = ( pred_masked - pred_base[None,...]

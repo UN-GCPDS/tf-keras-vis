@@ -64,7 +64,7 @@ class Layercam(Gradcam):
                 to False.
             gradient_modifier: A function to modify gradients. Defaults to
                 `lambda grads: tf.keras.backend.relu(grads)`.
-            weights_modifier: A function to modigy weights. Defaults to 
+            weights_modifier: A function to modify weights. Defaults to 
                 `lambda grads: grads`
             expand_cam: True to resize CAM to the same as input image size. **Note!** When False,
                 even if the model has multiple inputs, return only a CAM. Defaults to True.

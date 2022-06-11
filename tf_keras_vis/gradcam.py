@@ -67,7 +67,7 @@ class Gradcam(ModelVisualization):
             gradient_modifier: A function to modify gradients. Defaults to None.
             activation_modifier: A function to modify the Class Activation Map (CAM). Defaults to
                 `lambda cam: K.relu(cam)`.
-            weights_modifier: A function to modigy weights. Defaults to 
+            weights_modifier: A function to modify weights. Defaults to 
                 `lambda grads: K.mean(grads, axis=tuple(range(grads.ndim)[1:-1]), keepdims=True)`
             training: A bool that indicates whether the model's training-mode on or off. Defaults
                 to False.
