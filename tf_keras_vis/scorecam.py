@@ -165,11 +165,12 @@ class Scorecam(ModelVisualization):
         # (channels * samples, logits) -> (channels, samples, logits)
         preds_masked = (np.reshape(prediction, (channels, nsamples, *prediction.shape[1:]))
                  for prediction in preds_masked)
-        
-        increased_confidence = ( pred_masked - pred_base[None,...]
-                                for pred_masked, pred_base in zip(preds_masked, preds_baseline))
-        # Calculating weights
-        weights = ([score(i) for i in incresed] 
+
+        # Calculating weights        
+        increased_confidence = ( score(pred_masked)-score(pred_base[None,...])
+                                for pred_masked, pred_base, score in zip(preds_masked, preds_baseline, scores))
+
+        weights = ([i for i in incresed] 
                    for score, incresed in zip(scores, increased_confidence))
         # (channels, samples, 1)
         weights = (K.softmax(w,axis=0) for w in weights)
