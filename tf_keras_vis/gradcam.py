@@ -113,20 +113,17 @@ class Gradcam(ModelVisualization):
         weights = weights_modifier(grads)
         if return_one_cam_per_filter:
             cam = np.multiply(penultimate_output, weights)
-            print(cam)
-            print(np.shape(cam))
-            print(cam.shape)
             if activation_modifier is not None:
-                for i in range(cam.shape()[-1]):
+                for i in range(cam.shape[-1]):
                     cam[...,i] = activation_modifier(cam[...,i])
             if not expand_cam:
                 if normalize_cam:
-                    for i in range(cam.shape()[-1]):
+                    for i in range(cam.shape[-1]):
                         cam[...,i] = normalize(cam[...,i])
                 return cam
             
             # Visualizing
-            for i in range(cam[...,i].shape()[-1]):
+            for i in range(cam[...,i].shape[-1]):
                 factors = (zoom_factor(cam[...,i].shape, X.shape) for X in seed_inputs)
                 cam[...,i] = [zoom(cam[...,i], factor, order=1) for factor in factors]
                 if normalize_cam:
