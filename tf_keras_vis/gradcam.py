@@ -123,14 +123,15 @@ class Gradcam(ModelVisualization):
                 return cam
             
             # Visualizing
+            final_cam = np.zeros((*seed_inputs[0].shape,cam.shape[-1]))
             for i in range(cam.shape[-1]):
                 factors = (zoom_factor(cam[...,i].shape, X.shape) for X in seed_inputs)
                 temp_cam = [zoom(cam[...,i], factor, order=1) for factor in factors]
                 if normalize_cam:
-                    cam[...,i] = [normalize(x) for x in temp_cam]
+                    final_cam[...,i] = [normalize(x) for x in temp_cam]
                 if len(self.model.inputs) == 1 and not isinstance(seed_input, list):
-                    cam[...,i] = temp_cam[0]
-            return cam
+                    final_cam[...,i] = temp_cam[0]
+            return final_cam
 
         else:
             cam = np.sum(np.multiply(penultimate_output, weights), axis=-1)
