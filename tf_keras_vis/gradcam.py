@@ -130,7 +130,7 @@ class Gradcam(ModelVisualization):
                 if normalize_cam:
                     final_cam[...,i] = [normalize(x) for x in temp_cam]
                 if len(self.model.inputs) == 1 and not isinstance(seed_input, list):
-                    final_cam[...,i] = temp_cam[0][...,0]
+                    final_cam[...,i] = temp_cam[0][...,np.newaxis]
             return final_cam
 
         else:
