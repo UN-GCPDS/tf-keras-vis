@@ -25,6 +25,7 @@ class Layercam(Gradcam):
                  training=False,
                  expand_cam=True,
                  normalize_cam=True,
+                 return_one_cam_per_filter=False,
                  unconnected_gradients=tf.UnconnectedGradients.NONE) -> Union[np.ndarray, list]:
         """Generate gradient based class activation maps (CAM) by using positive gradient of
         penultimate_layer with respect to score.
