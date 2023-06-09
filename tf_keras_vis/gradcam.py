@@ -123,7 +123,7 @@ class Gradcam(ModelVisualization):
                 return cam
             
             # Visualizing
-            for i in range(cam[...,i].shape[-1]):
+            for i in range(cam.shape[-1]):
                 factors = (zoom_factor(cam[...,i].shape, X.shape) for X in seed_inputs)
                 cam[...,i] = [zoom(cam[...,i], factor, order=1) for factor in factors]
                 if normalize_cam:
