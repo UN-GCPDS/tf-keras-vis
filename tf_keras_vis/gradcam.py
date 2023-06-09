@@ -125,6 +125,10 @@ class Gradcam(ModelVisualization):
             # Visualizing
             for i in range(cam.shape[-1]):
                 factors = (zoom_factor(cam[...,i].shape, X.shape) for X in seed_inputs)
+                print(factors)
+                print(cam[...,i].shape)
+                print([zoom(cam[...,i], factor, order=1) for factor in factors].shape)
+                print(zoom(cam[...,i], factors[0], order=1).shape)
                 cam[...,i] = [zoom(cam[...,i], factor, order=1) for factor in factors]
                 if normalize_cam:
                     cam[...,i] = [normalize(x) for x in cam[...,i]]
