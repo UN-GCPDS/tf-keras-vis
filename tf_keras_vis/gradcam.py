@@ -31,6 +31,7 @@ class Gradcam(ModelVisualization):
                  training=False,
                  expand_cam=True,
                  normalize_cam=True,
+                 return_one_cam_per_filter=False,
                  unconnected_gradients=tf.UnconnectedGradients.NONE) -> Union[np.ndarray, list]:
         """Generate gradient based class activation maps (CAM) by using positive gradient of
         penultimate_layer with respect to score.
@@ -110,23 +111,45 @@ class Gradcam(ModelVisualization):
         if gradient_modifier is not None:
             grads = gradient_modifier(grads)
         weights = weights_modifier(grads)
-        cam = np.sum(np.multiply(penultimate_output, weights), axis=-1)
-        if activation_modifier is not None:
-            cam = activation_modifier(cam)
-
-        if not expand_cam:
-            if normalize_cam:
-                cam = normalize(cam)
+        if return_one_cam_per_filter:
+            cam = np.multiply(penultimate_output, weights)
+            if activation_modifier is not None:
+                for i in range(cam.shape()[-1]):
+                    cam[...,i] = activation_modifier(cam[...,i])
+            if not expand_cam:
+                if normalize_cam:
+                    for i in range(cam.shape()[-1]):
+                        cam[...,i] = normalize(cam[...,i])
+                return cam
+            
+            # Visualizing
+            for i in range(cam[...,i].shape()[-1]):
+                factors = (zoom_factor(cam[...,i].shape, X.shape) for X in seed_inputs)
+                cam[...,i] = [zoom(cam[...,i], factor, order=1) for factor in factors]
+                if normalize_cam:
+                    cam[...,i] = [normalize(x) for x in cam[...,i]]
+                if len(self.model.inputs) == 1 and not isinstance(seed_input, list):
+                    cam[...,i] = cam[...,i][0]
             return cam
 
-        # Visualizing
-        factors = (zoom_factor(cam.shape, X.shape) for X in seed_inputs)
-        cam = [zoom(cam, factor, order=1) for factor in factors]
-        if normalize_cam:
-            cam = [normalize(x) for x in cam]
-        if len(self.model.inputs) == 1 and not isinstance(seed_input, list):
-            cam = cam[0]
-        return cam
+        else:
+            cam = np.sum(np.multiply(penultimate_output, weights), axis=-1)
+            if activation_modifier is not None:
+                cam = activation_modifier(cam)
+
+            if not expand_cam:
+                if normalize_cam:
+                    cam = normalize(cam)
+                return cam
+
+            # Visualizing
+            factors = (zoom_factor(cam.shape, X.shape) for X in seed_inputs)
+            cam = [zoom(cam, factor, order=1) for factor in factors]
+            if normalize_cam:
+                cam = [normalize(x) for x in cam]
+            if len(self.model.inputs) == 1 and not isinstance(seed_input, list):
+                cam = cam[0]
+            return cam
 
 
 from tf_keras_vis.gradcam_plus_plus import GradcamPlusPlus  # noqa: F401, E402
